@@ -16,7 +16,7 @@ class Decoder(nn.Module):
         future_mask = torch.tril(torch.ones(x.size(1), x.size(1)))
         h = self.multi_head_attention1(q, k, v, mask=future_mask)  # h: torch.Tensor(batch_size, seq_len, d_model)
         x = normalize(x + h, dim=-1)
-        h = self.multi_head_attention2(encoder_x, encoder_x, x)
+        h = self.multi_head_attention2(x, encoder_x, encoder_x)
         x = normalize(x + h, dim=-1)
         h = self.feed_forward(x)
         x = normalize(x + h, dim=-1)
