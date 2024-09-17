@@ -11,12 +11,11 @@ class Decoder(nn.Module):
         self.multi_head_attention2 = MultiHeadAttention(d_model=d_model, d_q=d_q, d_k=d_k, d_v=d_v, nums_heads=8)
         self.feed_forward = FeedForward(d_model=d_model, d_ff=d_ff)
 
-    def forward(self, x, encoder_x):  # x: torch.Tensor(batch_size, seq_len, d_model)
+    def forward(self, x, encoder_x, mask_src=None, mask_tgt=None):  # x: torch.Tensor(batch_size, seq_len, d_model)
         q, k, v = x, x, x
-        future_mask = torch.tril(torch.ones(x.size(1), x.size(1)))
-        h = self.multi_head_attention1(q, k, v, mask=future_mask)  # h: torch.Tensor(batch_size, seq_len, d_model)
+        h = self.multi_head_attention1(q, k, v, mask=mask_tgt)  # h: torch.Tensor(batch_size, seq_len, d_model)
         x = normalize(x + h, dim=-1)
-        h = self.multi_head_attention2(x, encoder_x, encoder_x)
+        h = self.multi_head_attention2(x, encoder_x, encoder_x, mask=mask_src)
         x = normalize(x + h, dim=-1)
         h = self.feed_forward(x)
         x = normalize(x + h, dim=-1)

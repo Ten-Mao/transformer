@@ -34,7 +34,7 @@ class MultiHeadAttention(nn.Module):
         assert d_q == d_k
 
         if mask is not None:
-            attention_scores = torch.softmax(Q @ K.transpose(-2, -1) / (d_k ** 0.5) * mask, dim=-1)
+            attention_scores = torch.softmax((Q @ K.transpose(-2, -1) / (d_k ** 0.5)).masked_fill(mask, float('-inf')), dim=-1)
         else:
             attention_scores = torch.softmax(Q @ K.transpose(-2, -1) / (d_k ** 0.5), dim=-1)
         return attention_scores @ V
